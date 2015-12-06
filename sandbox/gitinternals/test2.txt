@@ -1,0 +1,229 @@
+mkdir test2
+cd test2
+
+git init
+
+touch README.md
+
+git status
+
+find .git -type f | xargs ls -1rt
+
+git add README.md
+
+find .git -type f | xargs ls -1rt
+
+One Blob
+
+git cat-file blob-hash -p
+
+vim README.md
+
+git add -u
+
+find .git -type f | xargs ls -1rt
+
+Two blobs
+git cat-file blob-hash -p
+
+git commit
+
+find .git -type f | xargs ls -1rt
+.git/info/exclude
+.git/hooks/update.sample
+.git/hooks/prepare-commit-msg.sample
+.git/hooks/pre-rebase.sample
+.git/hooks/pre-push.sample
+.git/hooks/pre-commit.sample
+.git/hooks/pre-applypatch.sample
+.git/hooks/post-update.sample
+.git/hooks/commit-msg.sample
+.git/hooks/applypatch-msg.sample
+.git/description
+.git/config
+.git/HEAD
+.git/objects/e6/9de29bb2d1d6434b8b29ae775ad8c2e48c5391
+.git/objects/31/503ff5ee6025ae3651e0b514fc2d5f976b2d7a
+.git/index
+.git/objects/99/62207a132b7a782079616f872fb39d1ea728a8
+.git/refs/heads/master
+.git/objects/5b/0d029342bab38fe05a23c810186bc46e5deed0
+.git/logs/refs/heads/master
+.git/logs/HEAD
+.git/COMMIT_EDITMSG
+
+After performing the first commit, let us take a look at the repository state
+
+.git/objects/99/62207a132b7a782079616f872fb39d1ea728a8
+
+blob objects in the index are converted into a tree object
+
+$ git cat-file 99622 -t
+tree
+$ git cat-file 99622 -p
+100644 blob 31503ff5ee6025ae3651e0b514fc2d5f976b2d7a    README.md
+
+Master branch is officially declared
+
+.git/objects/5b/0d029342bab38fe05a23c810186bc46e5deed0
+$ git cat-file 5b0d0 -t
+commit
+
+A commit object is created pointing to the tree object 99622
+
+$ git cat-file 5b0d0 -p
+tree 9962207a132b7a782079616f872fb39d1ea728a8
+author Satish Goda <satishgoda@live.com> 1449388705 +0800
+committer Satish Goda <satishgoda@live.com> 1449388705 +0800
+
+Experiment 1
+.....
+.....
+.....
+
+$ git symbolic-ref HEAD
+refs/heads/master
+
+$ cat .git/refs/heads/master
+5b0d029342bab38fe05a23c810186bc46e5deed0
+
+$ cat .git/logs/refs/heads/master
+0000000000000000000000000000000000000000 5b0d029342bab38fe05a23c810186bc46e5deed0 Satish Goda <satishgoda@live.com> 1449388705 +0800 commit (initial): Experiment 1
+
+$ cat .git/logs/HEAD
+0000000000000000000000000000000000000000 5b0d029342bab38fe05a23c810186bc46e5deed0 Satish Goda <satishgoda@live.com> 1449388705 +0800 commit (initial): Experiment 1
+
+$ git log --pretty=oneline master
+5b0d029342bab38fe05a23c810186bc46e5deed0 Experiment 1
+
+Tagged references
+
+$ git tag commit1
+
+$ find .git -type f | xargs ls -1rt
+
+$ cat .git/refs/tags/commit1
+
+$ git tag commit1  --delete
+Deleted tag 'commit1' (was 5b0d029)
+
+$ find .git -type f | xargs ls -1rt
+5b0d029342bab38fe05a23c810186bc46e5deed0
+
+No more .git/refs/tags/commit1
+
+Branching
+
+git branch bug1
+
+$ find .git -type f | xargs ls -1rt
+
+...
+...
+.git/refs/heads/bug1
+.git/logs/refs/heads/bug1
+
+$ cat .git/refs/heads/bug1
+5b0d029342bab38fe05a23c810186bc46e5deed0
+
+$ cat .git/logs/refs/heads/bug1
+0000000000000000000000000000000000000000 5b0d029342bab38fe05a23c810186bc46e5deed0 Satish Goda <satishgoda@live.com> 1449390718 +0800 branch: Created from master
+
+$ cat .git/HEAD
+ref: refs/heads/master
+
+$ git checkout bug1
+Switched to branch 'bug1'
+
+$ find .git -type f | xargs ls -1rt
+
+...
+...
+.git/refs/heads/bug1
+.git/logs/refs/heads/bug1
+.git/logs/HEAD
+.git/index
+.git/HEAD
+
+
+$ cat .git/logs/HEAD
+0000000000000000000000000000000000000000 5b0d029342bab38fe05a23c810186bc46e5deed0 Satish Goda <satishgoda@live.com> 1449388705 +0800 commit (initial): Experiment 1
+5b0d029342bab38fe05a23c810186bc46e5deed0 5b0d029342bab38fe05a23c810186bc46e5deed0 Satish Goda <satishgoda@live.com> 1449390931 +0800 checkout: moving from master to bug1
+
+$ cat .git/HEAD
+ref: refs/heads/bug1
+
+$ vi README.mb
+
+$ git diff
+diff --git a/README.md b/README.md
+index 31503ff..1528e0f 100644
+--- a/README.md
++++ b/README.md
+@@ -1 +1 @@
+-Studying Git Internals chapter
++Studying Git Internals Chapter
+
+$ git cat-file 31503f -p
+Studying Git Internals chapter
+
+$ git cat-file 1528e0f -p
+fatal: Not a valid object name 1528e0f
+
+$ git add -u
+
+Studying Git Internals Chapter
+$ find .git -type f | xargs ls -1rt
+...
+...
+.git/objects/15/28e0fe873d3dac4e4928e0bce3805c0232005f
+.git/index
+
+$ git cat-file 1528e0f -p
+
+$ git commit
+
+$ find .git -type f | xargs ls -1rt
+...
+...
+.git/objects/15/28e0fe873d3dac4e4928e0bce3805c0232005f
+.git/index
+.git/objects/07/6d3cffef0d15f21973cf468a7cdc4d5aa528a1
+.git/refs/heads/bug1
+.git/objects/b3/322fb81ef7425e8b46b575f766d4ac66629a10
+.git/logs/refs/heads/bug1
+.git/logs/HEAD
+.git/COMMIT_EDITMSG
+
+
+$ git cat-file 076d3c -t
+tree
+
+$ git cat-file 076d3c -p
+100644 blob 1528e0fe873d3dac4e4928e0bce3805c0232005f    README.md
+
+$ cat .git/refs/heads/bug1
+b3322fb81ef7425e8b46b575f766d4ac66629a10
+
+$ git cat-file b3322f -t
+commit
+
+$ git cat-file b3322f -p
+tree 076d3cffef0d15f21973cf468a7cdc4d5aa528a1
+parent 5b0d029342bab38fe05a23c810186bc46e5deed0
+author Satish Goda <satishgoda@live.com> 1449409049 +0800
+committer Satish Goda <satishgoda@live.com> 1449409049 +0800
+
+Fixed case in word
+
+$ git cat-file 5b0d02 -t
+commit
+
+$ cat .git/logs/refs/heads/bug1
+0000000000000000000000000000000000000000 5b0d029342bab38fe05a23c810186bc46e5deed0 Satish Goda <satishgoda@live.com> 1449390718 +0800 branch: Created from master
+5b0d029342bab38fe05a23c810186bc46e5deed0 b3322fb81ef7425e8b46b575f766d4ac66629a10 Satish Goda <satishgoda@live.com> 1449409049 +0800 commit: Fixed case in word
+
+$ cat .git/logs/HEAD
+0000000000000000000000000000000000000000 5b0d029342bab38fe05a23c810186bc46e5deed0 Satish Goda <satishgoda@live.com> 1449388705 +0800 commit (initial): Experiment 1
+5b0d029342bab38fe05a23c810186bc46e5deed0 5b0d029342bab38fe05a23c810186bc46e5deed0 Satish Goda <satishgoda@live.com> 1449390931 +0800 checkout: moving from master to bug1
+5b0d029342bab38fe05a23c810186bc46e5deed0 b3322fb81ef7425e8b46b575f766d4ac66629a10 Satish Goda <satishgoda@live.com> 1449409049 +0800 commit: Fixed case in word
