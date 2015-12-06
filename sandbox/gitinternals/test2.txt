@@ -1,3 +1,7 @@
+# http://git-scm.com/book/en/v2/Git-Internals-Plumbing-and-Porcelain
+# http://git-scm.com/book/en/v2/Git-Internals-Git-Objects
+# http://git-scm.com/book/en/v2/Git-Internals-Git-References
+
 mkdir test2
 cd test2
 
